@@ -4,14 +4,14 @@ on:
     branches: [ master, action-test ]
 
 jobs:
-  Conditional-Publish-to-NPM:
+  Automated-Tests:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         # Support LTS versions based on https://nodejs.org/en/about/releases/
         node-version: ['12', '14', '16']
     steps:
-      - run: echo "🎉 This job was triggered by a “${{ github.event_name }}” event on branch “${{ github.ref }}”."
+#      - run: echo "🎉 This job was triggered by a “${{ github.event_name }}” event on ref “${{ github.ref }}”."
 
       - uses: actions/checkout@v2
       - name: Use Node.js ${{ matrix.node-version }}
@@ -22,6 +22,12 @@ jobs:
         run: npm ci
       - name: Run tests
         run: npm test
+
+  Conditional-Publish-to-NPM:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "🎉 This job was triggered by a “${{ github.event_name }}” event on ref “${{ github.ref }}”."
+
       - name: Run linter
         run: npm run lint
 
@@ -29,3 +35,7 @@ jobs:
         with:
           token: ${{ secrets.NPM_TOKEN }}
           dry-run: true
+
+      - if: steps.publish.outputs.type != 'none'
+        run: |
+          echo "NPM version changed: ${{ steps.publish.outputs.old-version }} => ${{ steps.publish.outputs.version }}"
