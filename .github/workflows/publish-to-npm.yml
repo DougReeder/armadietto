@@ -11,7 +11,7 @@ jobs:
         # Support LTS versions based on https://nodejs.org/en/about/releases/
         node-version: ['12', '14', '16']
     steps:
-      - run: echo "🎉 The job was automatically triggered by a “${{ github.event_name }}” event."
+      - run: echo "🎉 This job was triggered by a “${{ github.event_name }}” event on branch “${{ github.ref }}”."
 
       - uses: actions/checkout@v2
       - name: Use Node.js ${{ matrix.node-version }}
