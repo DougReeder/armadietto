@@ -1,12 +1,27 @@
 name: GitHub Actions Demo
 on:
   push:
-    branches: [ action-test ]
+    branches: [ XXX-action-test ]
 jobs:
   Explore-GitHub-Actions:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # Support LTS versions based on https://nodejs.org/en/about/releases/
+        node-version: ['12', '14', '16']
     steps:
-      - uses: actions/checkout@v1
+      - run: echo "🔎 The name of your branch is “${{ github.ref }}” and your repository is “${{ github.repository }}”."
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install dependencies
+        run: npm ci
+      - name: Run tests
+        run: npm test
+      - name: Run linter
+        run: npm run lint
 
       - name: Read package.json
         uses: dutscher/read-package-json-endpoint-actions@v1.33.7
@@ -25,4 +40,11 @@ jobs:
       #      - name: List files in the repository
       #        run: |
       #          ls ${{ github.workspace }}
+
+#      - name: Release
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+#        run: npx semantic-release
+
       - run: echo "🍏 This job's status is “${{ job.status }}”."
