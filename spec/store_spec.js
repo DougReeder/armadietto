@@ -259,14 +259,17 @@ sharedExamplesFor('Stores', (store) => {
     describe('get', () => {
       describe('for documents', () => {
         it('returns an existing resource', async () => {
+          const startTime = Date.now();
           await store.put('boris', '/photos/zipwire4', 'image/poster', Buffer.from('vertibo'));
           const { item } = await store.get('boris', '/photos/zipwire4');
-          expect(item).to.be.deep.equal({
-            'Content-Length': 7,
-            'Content-Type': 'image/poster',
-            ETag: item.ETag,
-            value: Buffer.from('vertibo')
-          });
+          expect(['string', 'number']).to.contain(typeof item.ETag);
+          expect(item.ETag).to.be.ok;
+          expect(item['Content-Type']).to.equal('image/poster');
+          expect(item['Content-Length']).to.equal(7);
+          expect(item['Last-Modified']).to.be.a('string');
+          expect(Date.parse(item['Last-Modified'])).to.be.closeTo(startTime, 1000);
+          expect(item.value).to.deep.equal(Buffer.from('vertibo'));
+          expect(item).to.be.an('object').that.has.all.keys('ETag', 'Content-Type', 'Content-Length', 'Last-Modified', 'value');
         });
 
         it('returns null for a non-existant key', async () => {
@@ -304,14 +307,17 @@ sharedExamplesFor('Stores', (store) => {
 
       describe('for directories', async () => {
         it('returns a directory listing for a folder', async () => {
+          const startTime = Date.now();
           await store.put('boris', '/photos/bar/boo', 'text/plain', Buffer.from('some content'));
           await store.put('boris', '/photos/bar/qux/boo', 'text/plain', Buffer.from('some content'));
           const { item } = await store.get('boris', '/photos/bar/');
-          expect(item.items.boo).to.be.deep.equal({
-            'Content-Type': 'text/plain',
-            'Content-Length': 12,
-            ETag: item.items.boo.ETag
-          });
+          expect(['string', 'number']).to.contain(typeof item.items.boo.ETag);
+          expect(item.items.boo.ETag).to.be.ok;
+          expect(item.items.boo['Content-Type']).to.equal('text/plain');
+          expect(item.items.boo['Content-Length']).to.equal(12);
+          expect(item.items.boo['Last-Modified']).to.be.a('string');
+          expect(Date.parse(item.items.boo['Last-Modified'])).to.be.closeTo(startTime, 1000);
+          expect(item.items.boo).to.be.an('object').that.has.all.keys('ETag', 'Content-Type', 'Content-Length', 'Last-Modified');
           expect(item.items['qux/']).to.be.deep.equal({
             ETag: item.items['qux/'].ETag
           });
@@ -329,7 +335,9 @@ sharedExamplesFor('Stores', (store) => {
           expect(item.items.singleton.ETag).to.be.ok;
           expect(item.items.singleton['Content-Type']).to.equal('application/identity');
           expect(item.items.singleton['Content-Length']).to.equal(14);
-          expect(Object.keys(item.items.singleton)).to.deep.equal(['ETag', 'Content-Type', 'Content-Length']);
+          expect(item.items.singleton['Last-Modified']).to.be.a('string');
+          expect(Date.parse(item.items.singleton['Last-Modified'])).to.be.closeTo(startTime, 1000);
+          expect(Object.keys(item.items.singleton)).to.deep.equal(['ETag', 'Content-Type', 'Content-Length', 'Last-Modified']);
         });
 
         /**
@@ -375,8 +383,10 @@ sharedExamplesFor('Stores', (store) => {
           expect(item.ETag).to.be.ok;
           expect(item['Content-Type']).to.equal('text/csv');
           expect(item['Content-Length']).to.equal(8);
+          expect(item['Last-Modified']).to.be.a('string');
+          expect(Date.parse(item['Last-Modified'])).to.be.closeTo(startTime, 1000);
           expect(Boolean(item.value)).to.equal(false);
-          expect(item).to.be.an('object').that.has.all.keys('ETag', 'Content-Type', 'Content-Length', 'value');
+          expect(item).to.be.an('object').that.has.all.keys('ETag', 'Content-Type', 'Content-Length', 'Last-Modified', 'value');
         });
       });
 
@@ -392,7 +402,9 @@ sharedExamplesFor('Stores', (store) => {
           expect(item.items.soliton.ETag).to.be.ok;
           expect(item.items.soliton['Content-Type']).to.equal('text/example');
           expect(item.items.soliton['Content-Length']).to.equal(24);
-          expect(Object.keys(item.items.soliton)).to.deep.equal(['ETag', 'Content-Type', 'Content-Length']);
+          expect(item.items.soliton['Last-Modified']).to.be.a('string');
+          expect(Date.parse(item.items.soliton['Last-Modified'])).to.be.closeTo(startTime, 1000);
+          expect(Object.keys(item.items.soliton)).to.deep.equal(['ETag', 'Content-Type', 'Content-Length', 'Last-Modified']);
           expect(Boolean(item.value)).to.be.false;
         });
       });
